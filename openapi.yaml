@@ -9,6 +9,18 @@ servers:
     description: Development server
 
 paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
   /users:
     get:
       summary: Get all users
@@ -59,6 +71,30 @@ paths:
 
 components:
   schemas:
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, unhealthy]
+          example: "healthy"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-01-01T00:00:00.000Z"
+        version:
+          type: string
+          example: "1.0.0"
+        uptime:
+          type: number
+          example: 123456
+        environment:
+          type: string
+          example: "development"
+      required:
+        - status
+        - timestamp
+
     User:
       type: object
       properties:
