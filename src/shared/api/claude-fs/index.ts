@@ -87,13 +87,37 @@ export class ClaudeFileSystem {
       for (const line of lines) {
         try {
           const data = JSON.parse(line)
+          
+          // メッセージデータの正規化
+          let messageContent = ''
+          if (typeof data.message === 'string') {
+            messageContent = data.message
+          } else if (data.message && typeof data.message === 'object') {
+            if (data.message.content) {
+              messageContent = data.message.content
+            } else if (data.message.text) {
+              messageContent = data.message.text
+            } else {
+              messageContent = JSON.stringify(data.message)
+            }
+          } else if (data.content) {
+            messageContent = data.content
+          } else if (data.text) {
+            messageContent = data.text
+          } else {
+            messageContent = 'No content available'
+          }
+          
           const conversation: Conversation = {
             id: data.id || Math.random().toString(36),
             parentUuid: data.parentUuid,
             sessionId,
-            type: data.type,
-            message: data.message,
-            timestamp: new Date(data.timestamp),
+            type: data.type || 'user',
+            message: {
+              role: data.message?.role || data.type || 'user',
+              content: messageContent
+            },
+            timestamp: new Date(data.timestamp || Date.now()),
             tools: data.tools
           }
           

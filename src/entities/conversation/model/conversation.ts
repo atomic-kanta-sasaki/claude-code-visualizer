@@ -56,9 +56,11 @@ export const useConversationStore = create<ConversationState>()(
         // Filter by search term
         if (filters.searchTerm) {
           const searchLower = filters.searchTerm.toLowerCase()
-          filtered = filtered.filter(conv => 
-            conv.message.content.toLowerCase().includes(searchLower)
-          )
+          filtered = filtered.filter(conv => {
+            const content = conv.message?.content || ''
+            const contentStr = typeof content === 'string' ? content : JSON.stringify(content)
+            return contentStr.toLowerCase().includes(searchLower)
+          })
         }
 
         // Filter by session ID
@@ -106,9 +108,11 @@ export const useConversationStore = create<ConversationState>()(
         // Filter by search term
         if (filters.searchTerm) {
           const searchLower = filters.searchTerm.toLowerCase()
-          filtered = filtered.filter(conv => 
-            conv.message.content.toLowerCase().includes(searchLower)
-          )
+          filtered = filtered.filter(conv => {
+            const content = conv.message?.content || ''
+            const contentStr = typeof content === 'string' ? content : JSON.stringify(content)
+            return contentStr.toLowerCase().includes(searchLower)
+          })
         }
 
         // Filter by session ID

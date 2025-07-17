@@ -27,7 +27,7 @@ export function ProjectList() {
 
   const handleProjectSelect = (project: ClaudeProject) => {
     selectProject(project)
-    setSessions(project.sessions)
+    setSessions(project.sessions || [])
   }
 
   const formatDate = (date: Date | string) => {

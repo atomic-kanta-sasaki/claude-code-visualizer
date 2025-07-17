@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Claude Context Manager
 
-## Getting Started
+Claude CLIの使用履歴とコンテキストをGUIで管理するWebアプリケーションです。
 
-First, run the development server:
+## 🎯 概要
+
+Claude Context Managerは、Claude CLIの`~/.claude`ディレクトリに保存されているデータを読み取り、プロジェクト、セッション、会話履歴、TODOをビジュアルに表示・管理するツールです。
+
+## 🚀 主要機能
+
+### 1. プロジェクト管理
+- Claude CLIプロジェクトの一覧表示
+- プロジェクトの活動状況（Active/Inactive）
+- メッセージ数、セッション数の統計表示
+
+### 2. セッション追跡
+- プロジェクト内のセッション履歴
+- セッションの開始・終了時刻
+- TODO進捗状況の表示
+
+### 3. 会話タイムライン
+- ユーザー、アシスタント、システムメッセージの表示
+- 会話の検索・フィルタリング
+- ツール使用履歴の表示
+
+### 4. TODO管理
+- かんばん形式のTODO表示
+- ステータス別分類（Pending/In Progress/Completed）
+- 優先度別表示
+
+### 5. 統計ダッシュボード
+- 全体の利用統計
+- プロジェクト・セッション・メッセージ数
+- TODO完了率
+
+## 🏗️ 技術スタック
+
+### フロントエンド
+- **Next.js 15** - React フレームワーク
+- **React 19** - UIライブラリ
+- **TypeScript** - 型安全性
+- **Tailwind CSS** - スタイリング
+- **ShadcnUI** - UIコンポーネント
+- **Zustand** - 状態管理
+
+### バックエンド
+- **Next.js API Routes** - サーバーサイドAPI
+- **Node.js fs** - ファイルシステムアクセス
+
+### アーキテクチャ
+- **Feature Slice Design** - 機能ベースの設計
+- **Clean Architecture** - レイヤー分離
+- **OpenAPI** - スキーマ駆動開発
+
+## 📦 インストール
 
 ```bash
+# 依存関係をインストール
+npm install
+
+# 開発サーバーを起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+
+# 本番ビルド
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🔧 開発環境セットアップ
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 必要条件
+- Node.js 18以上
+- Claude CLIがインストールされている
+- `~/.claude`ディレクトリにプロジェクトデータが存在する
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 開発サーバー起動
+```bash
+npm run dev
+```
 
-## Learn More
+アプリケーションは`http://localhost:3001`でアクセス可能です。
 
-To learn more about Next.js, take a look at the following resources:
+## 📊 データ構造
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Claude CLIデータ構造
+```
+~/.claude/
+├── projects/                    # プロジェクト管理
+│   ├── -Users-username-project/
+│   │   └── session-uuid.jsonl  # セッション履歴
+├── todos/                       # TODO管理
+│   └── session-uuid.json       # TODOデータ
+├── statsig/                     # 統計データ
+│   ├── statsig.session_id.*
+│   └── statsig.stable_id.*
+└── shell-snapshots/            # シェル環境
+    └── snapshot-*.sh
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### アプリケーション内データ型
+```typescript
+interface ClaudeProject {
+  id: string
+  path: string
+  name: string
+  sessions: ClaudeSession[]
+  lastActivity: Date
+  totalMessages: number
+  totalSessions: number
+}
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+interface ClaudeSession {
+  id: string
+  conversations: Conversation[]
+  todos: TodoItem[]
+  startTime: Date
+  lastUpdate: Date
+  messageCount: number
+  duration: number
+}
+```

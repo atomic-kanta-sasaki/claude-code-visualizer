@@ -61,9 +61,20 @@ export function ConversationTimeline() {
     }).format(new Date(date))
   }
 
-  const truncateContent = (content: string, maxLength: number = 200) => {
-    if (content.length <= maxLength) return content
-    return content.slice(0, maxLength) + '...'
+  const truncateContent = (content: unknown, maxLength: number = 200) => {
+    let textContent = ''
+    
+    if (typeof content === 'string') {
+      textContent = content
+    } else if (content && typeof content === 'object') {
+      // オブジェクトの場合は文字列化
+      textContent = JSON.stringify(content)
+    } else {
+      textContent = String(content || 'No content')
+    }
+    
+    if (textContent.length <= maxLength) return textContent
+    return textContent.slice(0, maxLength) + '...'
   }
 
   if (!selectedSession) {
@@ -165,7 +176,11 @@ export function ConversationTimeline() {
               <CardContent>
                 <div className="text-sm">
                   <pre className="whitespace-pre-wrap font-sans text-muted-foreground">
-                    {truncateContent(conversation.message.content)}
+                    {truncateContent(
+                      conversation.message?.content || 
+                      conversation.message || 
+                      'No content available'
+                    )}
                   </pre>
                   
                   {conversation.tools && conversation.tools.length > 0 && (

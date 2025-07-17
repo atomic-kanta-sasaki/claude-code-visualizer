@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -9,6 +9,8 @@ import { SessionList } from '@/features/session-tracker'
 import { ConversationTimeline } from '@/features/context-viewer'
 import { TodoBoard } from '@/features/todo-dashboard'
 import { useProjectStore } from '@/entities/project'
+import { useSessionStore } from '@/entities/session'
+import { useConversationStore } from '@/entities/conversation'
 import { 
   Folder, 
   Clock, 
@@ -23,7 +25,30 @@ type View = 'projects' | 'sessions' | 'conversations' | 'todos' | 'stats'
 
 export function DashboardLayout() {
   const [currentView, setCurrentView] = useState<View>('projects')
-  const { stats } = useProjectStore()
+  const { stats, selectedProject, fetchStats } = useProjectStore()
+  const { selectedSession } = useSessionStore()
+  const { setConversations } = useConversationStore()
+
+  // 統計情報を読み込み
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
+
+  // プロジェクトが選択されたらセッション画面に自動遷移
+  useEffect(() => {
+    if (selectedProject && currentView === 'projects') {
+      setCurrentView('sessions')
+    }
+  }, [selectedProject, currentView])
+
+  // セッションが選択されたら会話画面に自動遷移
+  useEffect(() => {
+    if (selectedSession && currentView === 'sessions') {
+      setCurrentView('conversations')
+      // 会話データを設定
+      setConversations(selectedSession.conversations || [])
+    }
+  }, [selectedSession, currentView, setConversations])
 
   const getViewTitle = (view: View) => {
     switch (view) {
@@ -153,42 +178,47 @@ export function DashboardLayout() {
           </div>
           
           <div className="flex items-center space-x-1 ml-auto">
-            <Button
-              variant={currentView === 'projects' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setCurrentView('projects')}
-            >
-              <Folder className="h-4 w-4 mr-2" />
-              Projects
-            </Button>
+            {/* バックボタン */}
+            {currentView !== 'projects' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (currentView === 'sessions') {
+                    setCurrentView('projects')
+                  } else if (currentView === 'conversations' || currentView === 'todos') {
+                    setCurrentView('sessions')
+                  } else if (currentView === 'stats') {
+                    setCurrentView('projects')
+                  }
+                }}
+              >
+                <ChevronLeft className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            )}
             
-            <Button
-              variant={currentView === 'sessions' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setCurrentView('sessions')}
-            >
-              <Clock className="h-4 w-4 mr-2" />
-              Sessions
-            </Button>
+            {/* 現在の画面情報 */}
+            <div className="flex items-center space-x-2 px-3 py-1 bg-muted rounded-md">
+              {currentView === 'projects' && <Folder className="h-4 w-4" />}
+              {currentView === 'sessions' && <Clock className="h-4 w-4" />}
+              {currentView === 'conversations' && <MessageSquare className="h-4 w-4" />}
+              {currentView === 'todos' && <ListTodo className="h-4 w-4" />}
+              {currentView === 'stats' && <BarChart3 className="h-4 w-4" />}
+              <span className="text-sm font-medium capitalize">{currentView}</span>
+              {selectedProject && currentView !== 'projects' && (
+                <span className="text-xs text-muted-foreground">
+                  / {selectedProject.name}
+                </span>
+              )}
+              {selectedSession && (currentView === 'conversations' || currentView === 'todos') && (
+                <span className="text-xs text-muted-foreground">
+                  / {selectedSession.id.slice(-8)}
+                </span>
+              )}
+            </div>
             
-            <Button
-              variant={currentView === 'conversations' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setCurrentView('conversations')}
-            >
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Conversations
-            </Button>
-            
-            <Button
-              variant={currentView === 'todos' ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => setCurrentView('todos')}
-            >
-              <ListTodo className="h-4 w-4 mr-2" />
-              TODOs
-            </Button>
-            
+            {/* 直接ナビゲーション */}
             <Button
               variant={currentView === 'stats' ? 'default' : 'ghost'}
               size="sm"
@@ -197,6 +227,30 @@ export function DashboardLayout() {
               <BarChart3 className="h-4 w-4 mr-2" />
               Stats
             </Button>
+            
+            {/* セッション選択時にTODOボタンを表示 */}
+            {selectedSession && currentView === 'conversations' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentView('todos')}
+              >
+                <ListTodo className="h-4 w-4 mr-2" />
+                TODOs
+              </Button>
+            )}
+            
+            {/* TODO画面からConversationに戻る */}
+            {selectedSession && currentView === 'todos' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentView('conversations')}
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Conversations
+              </Button>
+            )}
           </div>
         </div>
       </div>
