@@ -1,13 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import Link from 'next/link'
 import { useConversationStore } from '@/entities/conversation'
 import { useSessionStore } from '@/entities/session'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { User, Bot, Settings, MessageSquare, Search, Filter } from 'lucide-react'
+import { User, Bot, Settings, MessageSquare, Search, Filter, ListTodo } from 'lucide-react'
 import { ConversationDetail } from './conversation-detail'
 import { MessageContent, ToolSummary } from '@/components/ui/message-content'
 
@@ -74,9 +75,19 @@ export function ConversationTimeline() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold tracking-tight">
-          Conversations
-        </h2>
+        <div className="flex items-center space-x-4">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Conversations
+          </h2>
+          {selectedSession && (
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/dashboard/todos?session=${selectedSession.id}`}>
+                <ListTodo className="h-4 w-4 mr-2" />
+                View TODOs
+              </Link>
+            </Button>
+          )}
+        </div>
         
         <div className="flex items-center space-x-2">
           <div className="relative">

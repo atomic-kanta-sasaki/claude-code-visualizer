@@ -106,7 +106,10 @@ export function DashboardOverview() {
               </p>
               <div className="mt-3">
                 <Button asChild variant="outline" size="sm">
-                  <Link href={stat.href}>View Details</Link>
+                  <Link href={stat.href}>
+                    <stat.icon className="h-4 w-4 mr-2" />
+                    View Details
+                  </Link>
                 </Button>
               </div>
             </CardContent>

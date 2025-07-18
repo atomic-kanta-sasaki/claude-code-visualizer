@@ -1,8 +1,10 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useSessionStore } from '@/entities/session'
 import type { ClaudeSession, TodoItem } from '@/shared/types'
 import { useProjectStore } from '@/entities/project'
+import { useConversationStore } from '@/entities/conversation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Clock, MessageSquare, CheckCircle2, Circle, AlertCircle } from 'lucide-react'
@@ -10,6 +12,14 @@ import { Clock, MessageSquare, CheckCircle2, Circle, AlertCircle } from 'lucide-
 export function SessionList() {
   const { sessions, selectedSession, selectSession } = useSessionStore()
   const { selectedProject } = useProjectStore()
+  const { setConversations } = useConversationStore()
+  const router = useRouter()
+
+  const handleSessionSelect = (session: ClaudeSession) => {
+    selectSession(session)
+    setConversations(session.conversations || [])
+    router.push(`/dashboard/conversations?session=${session.id}`)
+  }
 
   const formatDuration = (ms: number) => {
     const minutes = Math.floor(ms / (1000 * 60))
@@ -90,7 +100,7 @@ export function SessionList() {
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedSession?.id === session.id ? 'ring-2 ring-primary' : ''
             }`}
-            onClick={() => selectSession(session)}
+            onClick={() => handleSessionSelect(session)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">

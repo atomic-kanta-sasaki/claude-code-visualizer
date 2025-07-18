@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import type { ClaudeProject } from '@/shared/types'
 import { useProjectStore } from '@/entities/project'
 import { useSessionStore } from '@/entities/session'
@@ -20,6 +21,7 @@ export function ProjectList() {
   } = useProjectStore()
   
   const { setSessions } = useSessionStore()
+  const router = useRouter()
 
   useEffect(() => {
     fetchProjects()
@@ -28,6 +30,7 @@ export function ProjectList() {
   const handleProjectSelect = (project: ClaudeProject) => {
     selectProject(project)
     setSessions(project.sessions || [])
+    router.push(`/dashboard/sessions?project=${project.id}`)
   }
 
   const formatDate = (date: Date | string) => {
