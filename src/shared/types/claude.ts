@@ -31,7 +31,7 @@ export interface Conversation {
 
 export interface Message {
   role: 'user' | 'assistant' | 'system'
-  content: string
+  content: Array<{type: string, text: string}>
   toolCalls?: ToolCall[]
 }
 
@@ -85,6 +85,7 @@ export interface ProjectStats {
   totalTodos: number
   completedTodos: number
   averageSessionDuration: number
+  activeUsers: number
 }
 
 export interface SessionStats {

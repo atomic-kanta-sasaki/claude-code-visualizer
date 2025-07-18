@@ -115,7 +115,9 @@ export class ClaudeFileSystem {
             type: data.type || 'user',
             message: {
               role: data.message?.role || data.type || 'user',
-              content: messageContent
+              content: typeof messageContent === 'string' 
+                ? [{ type: 'text', text: messageContent }]
+                : messageContent
             },
             timestamp: new Date(data.timestamp || Date.now()),
             tools: data.tools
@@ -264,7 +266,8 @@ export class ClaudeFileSystem {
       totalMessages,
       totalTodos: allTodos.length,
       completedTodos,
-      averageSessionDuration
+      averageSessionDuration,
+      activeUsers: 1 // TODO: Implement user tracking
     }
   }
 

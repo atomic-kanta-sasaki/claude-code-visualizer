@@ -3,20 +3,20 @@
 import { useEffect } from 'react'
 import { useConversationStore } from '@/entities/conversation'
 import { useSessionStore } from '@/entities/session'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { User, Bot, Settings, MessageSquare, Search, Filter } from 'lucide-react'
+import { ConversationDetail } from './conversation-detail'
+import { MessageContent, ToolSummary } from '@/components/ui/message-content'
 
 export function ConversationTimeline() {
   const { 
     filteredConversations, 
     selectedConversation, 
     selectConversation, 
-    searchConversations,
-    applyFilters,
-    filters
+    applyFilters
   } = useConversationStore()
   
   const { selectedSession } = useSessionStore()
@@ -61,21 +61,6 @@ export function ConversationTimeline() {
     }).format(new Date(date))
   }
 
-  const truncateContent = (content: unknown, maxLength: number = 200) => {
-    let textContent = ''
-    
-    if (typeof content === 'string') {
-      textContent = content
-    } else if (content && typeof content === 'object') {
-      // オブジェクトの場合は文字列化
-      textContent = JSON.stringify(content)
-    } else {
-      textContent = String(content || 'No content')
-    }
-    
-    if (textContent.length <= maxLength) return textContent
-    return textContent.slice(0, maxLength) + '...'
-  }
 
   if (!selectedSession) {
     return (
@@ -143,60 +128,59 @@ export function ConversationTimeline() {
           </div>
         ) : (
           filteredConversations.map((conversation) => (
-            <Card 
-              key={conversation.id}
-              className={`cursor-pointer transition-all hover:shadow-md border-l-4 ${
-                getMessageColor(conversation.type)
-              } ${
-                selectedConversation?.id === conversation.id ? 'ring-2 ring-primary' : ''
-              }`}
-              onClick={() => selectConversation(conversation)}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {getMessageIcon(conversation.type)}
-                    <CardTitle className="text-base capitalize">
-                      {conversation.type}
-                    </CardTitle>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Badge variant="outline" className="text-xs">
-                      {formatTime(conversation.timestamp)}
-                    </Badge>
-                    {conversation.tools && conversation.tools.length > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        {conversation.tools.length} tools
+            <ConversationDetail key={conversation.id} conversation={conversation}>
+              <Card 
+                className={`cursor-pointer transition-all hover:shadow-md border-l-4 ${
+                  getMessageColor(conversation.type)
+                } ${
+                  selectedConversation?.id === conversation.id ? 'ring-2 ring-primary' : ''
+                }`}
+                onClick={() => selectConversation(conversation)}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {getMessageIcon(conversation.type)}
+                      <CardTitle className="text-base capitalize">
+                        {conversation.type}
+                      </CardTitle>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant="outline" className="text-xs">
+                        {formatTime(conversation.timestamp)}
                       </Badge>
-                    )}
+                      {conversation.tools && conversation.tools.length > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {conversation.tools.length} tools
+                        </Badge>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="text-sm">
-                  <pre className="whitespace-pre-wrap font-sans text-muted-foreground">
-                    {truncateContent(
-                      conversation.message?.content || 
-                      conversation.message || 
-                      'No content available'
-                    )}
-                  </pre>
+                </CardHeader>
+                
+                <CardContent>
+                  <MessageContent 
+                    content={conversation.message?.content || conversation.message}
+                    truncate={true}
+                    maxLength={300}
+                    className="text-muted-foreground"
+                  />
                   
                   {conversation.tools && conversation.tools.length > 0 && (
-                    <div className="mt-3 pt-3 border-t">
-                      <div className="flex flex-wrap gap-2">
-                        {conversation.tools.map((tool, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
-                            {tool.name}
-                          </Badge>
-                        ))}
-                      </div>
+                    <div className="mt-3 pt-3 border-t space-y-1">
+                      {conversation.tools.slice(0, 3).map((tool, index) => (
+                        <ToolSummary key={index} tool={tool} />
+                      ))}
+                      {conversation.tools.length > 3 && (
+                        <div className="text-xs text-gray-500">
+                          +{conversation.tools.length - 3} more tools
+                        </div>
+                      )}
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </ConversationDetail>
           ))
         )}
       </div>

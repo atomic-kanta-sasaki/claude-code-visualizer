@@ -1,5 +1,5 @@
-import { DashboardLayout } from '@/widgets/claude-dashboard'
+import { redirect } from 'next/navigation'
 
 export default function Home() {
-  return <DashboardLayout />
+  redirect('/dashboard')
 }
