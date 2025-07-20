@@ -4,13 +4,14 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { cn } from '@/shared/lib/utils'
 import { Button } from '@/components/ui/button'
-import { 
-  Folder, 
-  Clock, 
-  MessageSquare, 
-  ListTodo, 
+import {
+  Folder,
+  Clock,
+  MessageSquare,
+  ListTodo,
   BarChart3,
-  Home
+  Home,
+  FileEdit
 } from 'lucide-react'
 
 const navigationItems = [
@@ -49,6 +50,12 @@ const navigationItems = [
     href: '/dashboard/stats',
     icon: BarChart3,
     description: 'Usage and performance metrics'
+  },
+  {
+    name: 'Editor',
+    href: '/dashboard/editor',
+    icon: FileEdit,
+    description: 'Edit CLAUDE.md configuration file'
   }
 ]
 
@@ -66,7 +73,7 @@ export function DashboardNav() {
             <span className="hidden font-bold sm:inline-block">Claude Dashboard</span>
           </Link>
         </div>
-        
+
         <nav className="flex items-center space-x-6 text-sm font-medium">
           {navigationItems.map((item) => {
             const isActive = pathname === item.href

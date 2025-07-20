@@ -31,8 +31,18 @@ export interface Conversation {
 
 export interface Message {
   role: 'user' | 'assistant' | 'system'
-  content: Array<{type: string, text: string}>
+  content: Array<ContentItem> | string
   toolCalls?: ToolCall[]
+}
+
+export interface ContentItem {
+  type: string
+  text?: string
+  tool_use_id?: string
+  content?: string
+  id?: string
+  name?: string
+  input?: Record<string, unknown>
 }
 
 export interface ToolCall {
